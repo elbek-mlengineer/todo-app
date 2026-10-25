@@ -1,0 +1,14 @@
+{
+  "name": "todos", "private": true,
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "install:all": "npm --prefix todo_backend ci && npm --prefix todo_frontend ci",
+    "db:start": "docker compose up -d --wait",
+    "db:stop": "docker compose stop",
+    "db:migrate": "npm --prefix todo_backend run db:migrate",
+    "dev": "node scripts/dev.mjs",
+    "build": "npm --prefix todo_backend run build && npm --prefix todo_frontend run build",
+    "test": "npm --prefix todo_backend test -- --runInBand"
+  },
+  "engines": {"node": ">=22"}
+}
