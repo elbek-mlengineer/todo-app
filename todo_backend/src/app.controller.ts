@@ -1,3 +1,4 @@
+import { AdminUsersService } from './admin-users.service';
 import sharp from 'sharp';
 import {
   BadRequestException,
@@ -26,6 +27,8 @@ import { AuthService } from './auth.service';
 import { TasksService } from './tasks.service';
 import { PaymentsService } from './payments.service';
 import {
+  AdminUserDto,
+  DeleteUserDto,
   PaymentDto,
   ReviewDto,
   SettingsDto,
@@ -43,6 +46,7 @@ export class AppController {
     private readonly auth: AuthService,
     private readonly tasks: TasksService,
     private readonly payments: PaymentsService,
+    private readonly adminUserActions: AdminUsersService,
   ) {}
   @Get('tasks') list(@Req() req: any, @Query() query: TaskQueryDto) {
     return this.tasks.list(req.user.id, query);
@@ -149,6 +153,22 @@ export class AppController {
       req.user.id,
     ]);
     return this.auth.publicUser(req.user);
+  }
+  @Patch('admin/users/:id') updateAdminUser(
+    @Req() req: any,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: AdminUserDto,
+  ) {
+    this.payments.admin(req.user);
+    return this.adminUserActions.update(req.user.id, id, dto);
+  }
+  @Delete('admin/users/:id') deleteAdminUser(
+    @Req() req: any,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: DeleteUserDto,
+  ) {
+    this.payments.admin(req.user);
+    return this.adminUserActions.remove(req.user.id, id, dto.confirmation);
   }
   @Get('admin/users') async adminUsers(
     @Req() req: any,

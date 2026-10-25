@@ -204,3 +204,9 @@ Commitdan oldin `.env` fayllari ro‘yxatda yo‘qligini tekshiring. Kelajakda r
 Google va Telegram hisoblari bir odamga tegishli ekanini tasdiqlash uchun Sozlamalar → Ulangan hisoblar ichida ikkinchi usulni ulang. Mavjud alohida hisob bo‘lsa, tasdiqlangandan keyin barcha vazifalar, bildirishnomalar, cheklar, administrator huquqi va qolgan Pro vaqti birlashtiriladi. Joriy hisobning ismi va sozlamalari qoladi; eski sessiyalar yopiladi. Har ikki hisobda turli Google yoki turli Telegram identifikatorlari bo‘lsa, ulash rad etiladi — boshqa identifikator avtomatik almashtirilmaydi.
 
 Yuqori o‘ng yoki chap pastdagi profil tugmasi sozlamalarni ochadi. Profil bo‘limida ismni o‘zgartirib saqlash mumkin. Email faqat tasdiqlangan Google hisobidan olinadi, rolni foydalanuvchi tahrirlay olmaydi.
+
+## Administrator: foydalanuvchilarni boshqarish
+
+Foydalanuvchilar jadvalidagi Tahrirlash orqali ismni o‘zgartirish va tarifni boshqarish mumkin. Pro berish 1–3660 kun qo‘shadi; faol tarif muddati saqlanib uzaytiriladi. Pro’ni bekor qilish pro_until qiymatini tozalaydi va fonni oq rangga qaytaradi.
+
+O‘chirish uchun foydalanuvchi ismini aynan yozib tasdiqlash kerak. Hisobning vazifalari, bildirishnomalari, sessiyalari, profil rasmi va cheklari ham o‘chadi. O‘z administrator hisobini o‘chirish bloklangan. Qayta Google/Telegram orqali kirish yangi bo‘sh hisob yaratadi; bu bloklash funksiyasi emas. Boshqa foydalanuvchilarning to‘lov tekshiruvi yozuvlari saqlanadi. Amal tarixi admin_user_actions jadvalida saqlanadi.

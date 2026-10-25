@@ -1,3 +1,4 @@
+import { AdminUsersService } from './admin-users.service';
 import { TelegramLoginService } from './telegram-login.service';
 import { Module } from '@nestjs/common';
 import { AppController, HealthController } from './app.controller';
@@ -14,6 +15,7 @@ import { RemindersService } from './reminders.service';
   controllers: [AppController, AuthController, HealthController],
   providers: [
     DatabaseService,
+    AdminUsersService,
     AuthService,
     TelegramLoginService,
     AuthGuard,

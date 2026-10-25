@@ -679,6 +679,189 @@ describe('Todo application (isolated PostgreSQL integration)', () => {
       .set('Cookie', aliceCookie)
       .expect(404);
   });
+  it('restricts user management to administrators and validates edits', async () => {
+    await req()
+      .patch('/api/admin/users/' + bob)
+      .send({ pro_days: 30 })
+      .set('Origin', webUrl)
+      .expect(401);
+    for (const method of ['patch', 'delete'] as const)
+      await req()
+        [method]('/api/admin/users/' + bob)
+        .set('Cookie', bobCookie)
+        .set('Origin', webUrl)
+        .send(method === 'patch' ? { pro_days: 30 } : { confirmation: 'Bob' })
+        .expect(403);
+    await req()
+      .patch('/api/admin/users/' + bob)
+      .set('Cookie', adminCookie)
+      .send({ pro_days: 30 })
+      .expect(403);
+    for (const body of [
+      {},
+      { pro_days: -1 },
+      { pro_days: 3661 },
+      { pro_days: 1.5 },
+      { pro_days: '30' },
+      { pro_days: null },
+      { name: ' ' },
+      { role: 'admin' },
+      { email: 'other@example.test' },
+    ])
+      await req()
+        .patch('/api/admin/users/' + bob)
+        .set('Cookie', adminCookie)
+        .set('Origin', webUrl)
+        .send(body)
+        .expect(400);
+  });
+  it('edits names, grants and extends Pro, then revokes it with an audit trail', async () => {
+    const id = await auth.identity('google', {
+      sub: 'managed-pro',
+      email: 'managed@example.test',
+      name: 'Original',
+    });
+    const update = (body: any) =>
+      req()
+        .patch('/api/admin/users/' + id)
+        .set('Cookie', adminCookie)
+        .set('Origin', webUrl)
+        .send(body);
+    const first = await update({ name: '  Managed  ', pro_days: 30 }).expect(
+      200,
+    );
+    expect(first.body.name).toBe('Managed');
+    const until = Date.parse(first.body.pro_until);
+    expect(until - Date.now()).toBeGreaterThan(29.99 * 86400000);
+    const extended = await update({ pro_days: 7 }).expect(200);
+    expect(Date.parse(extended.body.pro_until) - until).toBe(7 * 86400000);
+    await pg.query("UPDATE users SET theme='dark' WHERE id=$1", [id]);
+    const revoked = await update({ pro_days: 0 }).expect(200);
+    expect(revoked.body.pro_until).toBeNull();
+    expect(
+      (await pg.query<any>('SELECT theme FROM users WHERE id=$1', [id])).rows[0]
+        .theme,
+    ).toBe('light');
+    const audits = (
+      await pg.query<any>(
+        'SELECT actor_id,action FROM admin_user_actions WHERE target_id=$1',
+        [id],
+      )
+    ).rows;
+    expect(audits).toHaveLength(3);
+    expect(
+      audits.every((x) => x.actor_id === admin && x.action === 'update'),
+    ).toBe(true);
+    await pg.query(
+      "UPDATE users SET pro_until=now()-interval '10 days' WHERE id=$1",
+      [id],
+    );
+    const fresh = await update({ pro_days: 1 }).expect(200);
+    expect(Date.parse(fresh.body.pro_until) - Date.now()).toBeGreaterThan(
+      0.99 * 86400000,
+    );
+  });
+  it('requires explicit confirmation, cascades deleted account data, and keeps other accounts', async () => {
+    const id = await auth.identity('google', {
+      sub: 'delete-managed',
+      email: 'delete@example.test',
+      name: 'Delete test',
+    });
+    const token = 'delete-session';
+    await pg.query(
+      "INSERT INTO sessions(token_hash,user_id,expires_at) VALUES($1,$2,now()+interval '1 day')",
+      [digest(token), id],
+    );
+    const task = (
+      await pg.query<any>(
+        "INSERT INTO tasks(user_id,title) VALUES($1,'Delete task') RETURNING id",
+        [id],
+      )
+    ).rows[0].id;
+    await pg.query(
+      "INSERT INTO reminders(task_id,revision,kind,deliver_at) VALUES($1,1,'due',now())",
+      [task],
+    );
+    await pg.query(
+      "INSERT INTO notifications(user_id,kind,title,body) VALUES($1,'test','Delete','Delete')",
+      [id],
+    );
+    await pg.query('INSERT INTO user_avatars(user_id,image) VALUES($1,$2)', [
+      id,
+      png,
+    ]);
+    await pg.query(
+      "INSERT INTO payments(user_id,price_uzs,duration_days,receipt,receipt_type) VALUES($1,1000,30,$2,'image/png')",
+      [id, png],
+    );
+    const otherPayment = (
+      await pg.query<any>(
+        "INSERT INTO payments(user_id,price_uzs,duration_days,receipt,receipt_type,status,reviewed_by) VALUES($1,1000,30,$2,'image/png','approved',$3) RETURNING id",
+        [bob, png, id],
+      )
+    ).rows[0].id;
+    const remove = (confirmation: string) =>
+      req()
+        .delete('/api/admin/users/' + id)
+        .set('Cookie', adminCookie)
+        .set('Origin', webUrl)
+        .send({ confirmation });
+    await remove('wrong name').expect(400);
+    expect(
+      (await pg.query('SELECT id FROM users WHERE id=$1', [id])).rows,
+    ).toHaveLength(1);
+    await remove('Delete test').expect(200);
+    for (const table of [
+      'tasks',
+      'notifications',
+      'user_avatars',
+      'payments',
+      'identities',
+      'sessions',
+    ])
+      expect(
+        (await pg.query('SELECT * FROM ' + table + ' WHERE user_id=$1', [id]))
+          .rows,
+      ).toHaveLength(0);
+    expect(
+      (await pg.query('SELECT * FROM reminders WHERE task_id=$1', [task])).rows,
+    ).toHaveLength(0);
+    expect(
+      (
+        await pg.query<any>('SELECT reviewed_by FROM payments WHERE id=$1', [
+          otherPayment,
+        ])
+      ).rows[0].reviewed_by,
+    ).toBeNull();
+    expect(
+      (await pg.query('SELECT * FROM users WHERE id=$1', [bob])).rows,
+    ).toHaveLength(1);
+    await req()
+      .get('/api/tasks')
+      .set('Cookie', sessionCookie + '=' + token)
+      .expect(401);
+    expect(
+      (
+        await pg.query(
+          "SELECT * FROM admin_user_actions WHERE target_id=$1 AND action='delete'",
+          [id],
+        )
+      ).rows,
+    ).toHaveLength(1);
+    await remove('Delete test').expect(404);
+  });
+  it('prevents deleting the acting administrator', async () => {
+    const r = await req()
+      .delete('/api/admin/users/' + admin)
+      .set('Cookie', adminCookie)
+      .set('Origin', webUrl)
+      .send({ confirmation: 'Administrator' })
+      .expect(400);
+    expect(r.body.message).toBe('CANNOT_DELETE_SELF');
+    expect(
+      (await pg.query('SELECT * FROM users WHERE id=$1', [admin])).rows,
+    ).toHaveLength(1);
+  });
   it('rejects callback replay and forged OAuth state', async () => {
     const result = await req()
       .get('/api/auth/google/callback?state=forged&code=forged')

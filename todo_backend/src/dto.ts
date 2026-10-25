@@ -94,3 +94,20 @@ export class ReviewDto {
   @IsIn(['approved', 'rejected']) status: string;
   @IsOptional() @IsString() @MaxLength(500) note?: string;
 }
+
+export class AdminUserDto {
+  @ValidateIf((o) => o.name !== undefined)
+  @Transform(trim)
+  @IsString()
+  @MinLength(1)
+  @MaxLength(100)
+  name?: string;
+  @ValidateIf((o) => o.pro_days !== undefined)
+  @IsInt()
+  @Min(0)
+  @Max(3660)
+  pro_days?: number;
+}
+export class DeleteUserDto {
+  @IsString() @MinLength(1) @MaxLength(100) confirmation!: string;
+}

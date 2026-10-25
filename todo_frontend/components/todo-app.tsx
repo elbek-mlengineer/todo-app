@@ -1107,7 +1107,7 @@ export default function TodoApp() {
             <Payments user={user} config={config} t={t} notify={notify} />
           )}
           {view === "users" && user.role === "admin" && (
-            <AdminUsers t={t} locale={locale} />
+            <AdminUsers t={t} locale={locale} user={user} onUser={setUser} />
           )}
           {view === "admin" && user.role === "admin" && (
             <AdminPayments t={t} locale={locale} notify={notify} />

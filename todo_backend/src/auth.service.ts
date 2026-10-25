@@ -261,6 +261,10 @@ export class AuthService {
       targetId,
       sourceId,
     ]);
+    await db.query(
+      'UPDATE admin_user_actions SET actor_id=$1 WHERE actor_id=$2',
+      [targetId, sourceId],
+    );
     await db.query('UPDATE payments SET reviewed_by=$1 WHERE reviewed_by=$2', [
       targetId,
       sourceId,

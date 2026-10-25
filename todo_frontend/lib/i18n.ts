@@ -1,5 +1,22 @@
 import type { Locale } from "./types";
 const en = {
+  userActions: "Actions",
+  editUser: "Edit",
+  grantPro: "Grant / extend Pro",
+  revokePro: "Revoke Pro",
+  keepPlan: "Keep current plan",
+  proDays: "Days to add",
+  proDaysHelp:
+    "Active Pro time is extended; otherwise it starts today. 1–3660 days.",
+  revokeProHelp:
+    "Pro access will end immediately and the background will return to white.",
+  deleteUser: "Delete user",
+  deleteUserWarning:
+    "This permanently deletes this account, tasks, notifications, photo and payment receipts. Other users are not affected. A new sign-in will create a new, empty account.",
+  confirmUserName: "Type the exact user name to confirm",
+  cannotDeleteSelf: "You cannot delete your own administrator account here.",
+  userNotFound: "This user no longer exists. Refresh the list.",
+  deleteConfirmation: "Enter the exact user name to confirm deletion.",
   users: "Users",
   usersHelp: "Registered accounts and their linked sign-in methods.",
   searchUsers: "Search name or email",
@@ -249,6 +266,23 @@ const en = {
 };
 type Dictionary = typeof en;
 const uz: Dictionary = {
+  userActions: "Amallar",
+  editUser: "Tahrirlash",
+  grantPro: "Pro berish / uzaytirish",
+  revokePro: "Pro’ni bekor qilish",
+  keepPlan: "Joriy tarifni saqlash",
+  proDays: "Qo‘shiladigan kunlar",
+  proDaysHelp:
+    "Faol Pro muddati uzaytiriladi, aks holda bugundan boshlanadi. 1–3660 kun.",
+  revokeProHelp: "Pro huquqi darhol tugaydi va fon oq rangga qaytadi.",
+  deleteUser: "Foydalanuvchini o‘chirish",
+  deleteUserWarning:
+    "Hisob, vazifalar, bildirishnomalar, profil rasmi va to‘lov cheklari butunlay o‘chadi. Boshqa foydalanuvchilar o‘zgarmaydi. Qayta kirsa, yangi bo‘sh hisob yaratiladi.",
+  confirmUserName: "Tasdiqlash uchun foydalanuvchi ismini aynan yozing",
+  cannotDeleteSelf:
+    "Bu yerdan o‘z administrator hisobingizni o‘chira olmaysiz.",
+  userNotFound: "Bu foydalanuvchi endi mavjud emas. Ro‘yxatni yangilang.",
+  deleteConfirmation: "O‘chirishni tasdiqlash uchun ismni aynan kiriting.",
   users: "Foydalanuvchilar",
   usersHelp: "Ro‘yxatdan o‘tgan hisoblar va ulangan kirish usullari.",
   searchUsers: "Ism yoki email bo‘yicha qidirish",
@@ -511,6 +545,9 @@ export function errorText(error: unknown, t: Texts) {
     TELEGRAM_CODE_LOCKED: t.telegramCodeLocked,
     TELEGRAM_CODE_NOT_SENT: t.telegramCodeNotSent,
     INVALID_AVATAR: t.errorAvatar,
+    CANNOT_DELETE_SELF: t.cannotDeleteSelf,
+    DELETE_CONFIRMATION_REQUIRED: t.deleteConfirmation,
+    USER_NOT_FOUND: t.userNotFound,
     AUTH_REQUIRED: t.errorAuth,
     PRO_REQUIRED: t.errorPro,
     INVALID_INPUT: t.errorInput,

@@ -2673,3 +2673,5 @@ button.avatar { border: 0; cursor: pointer; }
  .sidebar-bottom .upgrade-card { padding: 10px 12px; margin-bottom: 10px; }
  .sidebar-profile { padding-top: 12px; padding-bottom: 12px; }
 }
+
+.user-actions { display: flex; gap: 8px; align-items: center; }
