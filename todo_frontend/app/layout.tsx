@@ -12,6 +12,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="uz" suppressHydrationWarning>
+      <head>
+        <meta name="darkreader-lock" />
+      </head>
       <body>{children}</body>
     </html>
   );

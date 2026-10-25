@@ -2659,3 +2659,17 @@ button.avatar { border: 0; cursor: pointer; }
 .users-table-wrap { overflow-x: auto; margin: 20px 0; }
 .users-table { width: 100%; border-collapse: collapse; text-align: left; }
 .users-table th, .users-table td { padding: 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+
+/* Keep the account controls visible when the navigation exceeds the viewport. */
+.sidebar { height: 100dvh; overflow: hidden; }
+.sidebar > .brand-link, .sidebar > .workspace-label { flex-shrink: 0; }
+.sidebar > nav { flex: 1 1 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.sidebar-bottom { flex: 0 0 auto; margin-top: 0; padding-top: 12px; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.sidebar-profile .avatar, .sidebar-profile > .icon-button { flex-shrink: 0; }
+.sidebar-profile .profile-name { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-height: 700px) {
+ .sidebar { padding-top: 18px; }
+ .sidebar > .brand-link { margin-bottom: 20px; }
+ .sidebar-bottom .upgrade-card { padding: 10px 12px; margin-bottom: 10px; }
+ .sidebar-profile { padding-top: 12px; padding-bottom: 12px; }
+}
