@@ -2675,3 +2675,6 @@ button.avatar { border: 0; cursor: pointer; }
 }
 
 .user-actions { display: flex; gap: 8px; align-items: center; }
+.public-intro { max-width: 640px; padding: 20px; text-align: left; line-height: 1.6; }
+.public-intro h1 { font-size: clamp(1.5rem, 5vw, 2.25rem); line-height: 1.2; }
+.public-intro ul { padding-left: 24px; }

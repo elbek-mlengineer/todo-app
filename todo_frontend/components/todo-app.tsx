@@ -338,7 +338,17 @@ export default function TodoApp() {
     return (
       <main className="loading-screen">
         {logo}
-        <span className="spinner" />
+        <section className="public-intro" aria-labelledby="intro-title">
+          <h1 id="intro-title">Vazifalar va kundalik rejalar uchun todos</h1>
+          <p>Kichik qadamlar, katta natijalar. Kundalik ishlaringizni bir joyda rejalashtiring.</p>
+          <ul>
+            <li>Vazifalar uchun muddat, muhimlik va toifalarni belgilang.</li>
+            <li>Bugungi va kelgusi ishlarni hamda bajarilgan vazifalarni kuzating.</li>
+            <li>Ilovada va Telegram orqali eslatmalar oling.</li>
+          </ul>
+          <p>Google yoki Telegram orqali kiring. Interfeys o‘zbek va ingliz tillarida mavjud.</p>
+        </section>
+        <span className="spinner" role="status" aria-label={t.loading} />
         <p>{t.loading}</p>
       </main>
     );
@@ -812,7 +822,8 @@ export default function TodoApp() {
                   <div className="task-list" aria-busy={loading}>
                     {loading ? (
                       <div className="list-loading">
-                        <span className="spinner" />
+
+        <span className="spinner" role="status" aria-label={t.loading} />
                         <p>{t.loading}</p>
                       </div>
                     ) : tasks.length ? (
